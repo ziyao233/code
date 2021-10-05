@@ -23,10 +23,10 @@
 #define VMCODE_PREV 5
 #define VMCODE_NEXT 6
 #define VMCODE_JZ 7		// This is a special instruction.
-#define VMCODE_JNZ 8		// This is similar
+#define VMCODE_JMP 8		// This is similar
 /*
 	VMCODE_JZ has a three-byte argument.It is the offset in vmCode.
-	VMCODE_JNZ is similar to it.
+	VMCODE_JMP is similar to it.
 */
 
 uint8_t *vmCode;
@@ -55,17 +55,13 @@ static void eval(void)
 			dp -= *pc;
 		} else if (op == VMCODE_NEXT) {
 			dp += *pc;
-		} else if (op == VMCODE_JNZ) {
-			if (*dp) {
-				uint32_t offset = (uint32_t)*pc << 16;
-				pc++;
-				offset |= (uint32_t)*pc << 8;
-				pc++;
-				offset |= (uint32_t)*pc;
-				pc = vmCode + offset - 1;
-			} else {
-				pc += 2;
-			}
+		} else if (op == VMCODE_JMP) {
+			uint32_t offset = (uint32_t)*pc << 16;
+			pc++;
+			offset |= (uint32_t)*pc << 8;
+			pc++;
+			offset |= (uint32_t)*pc;
+			pc = vmCode + offset - 1;
 		} else if (op == VMCODE_JZ) {
 			if (*dp) {
 				pc += 2;
@@ -121,10 +117,11 @@ static const char *parse_sub(const char *src)
 			src = parse_sub(src);
 			src++;
 
-			vmCode[offset + 1] = vmCodeUsed >> 16;
-			vmCode[offset + 2] = vmCodeUsed >> 8 & 0xff;
-			vmCode[offset + 3] = vmCodeUsed & 0xff;
-			vmcode_emit(VMCODE_JNZ);
+			uint32_t target = vmCodeUsed + 4;
+			vmCode[offset + 1] = target >> 16;
+			vmCode[offset + 2] = target >> 8 & 0xff;
+			vmCode[offset + 3] = target & 0xff;
+			vmcode_emit(VMCODE_JMP);
 			vmcode_emit(offset >> 16);
 			vmcode_emit(offset >> 8 & 0xff);
 			vmcode_emit(offset & 0xff);
