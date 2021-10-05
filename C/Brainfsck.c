@@ -131,7 +131,7 @@ int main(int argc,char *argv[])
 	long int size = ftell(file);
 	char *src = (char*)malloc(sizeof(char) * size + 1);
 	rewind(file);
-	fread(src,size,1,file);
+	assert(fread(src,size,1,file));
 	fclose(file);
 	src[size] = '\0';		// Add the null character
 
