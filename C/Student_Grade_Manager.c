@@ -13,7 +13,7 @@
 /*	Constant values		*/
 #define CONF_ID_LENGTH 16
 #define CONF_NAME_LENGTH 32
-#define CONF_COL 6
+#define CONF_COL 3
 
 /*	Type definitions	*/
 
@@ -22,6 +22,7 @@ typedef struct {
 	char name[CONF_NAME_LENGTH];
 	int *grade;
 	long int total;
+	int average;
 }Student;
 
 /*	Global variables	*/
@@ -73,12 +74,16 @@ void init(void)
 	print_msg("StudentName ID Grade1 Grade2 ....");
 
 	for (int count = 0;count < gStatus.studentNum;count++) {
-		scanf("%s %s",gStatus.list[count].name,gStatus.list[count].id);
+		scanf("%s %s",gStatus.list[count].name,
+			      gStatus.list[count].id);
 		gStatus.list[count].total = 0;
 		for (int i = 0;i < gStatus.examNum;i++) {
 			scanf("%d",gStatus.list[count].grade + i);
-			gStatus.list[count].total += gStatus.list[count].grade[i];
+			gStatus.list[count].total +=
+				gStatus.list[count].grade[i];
 		}
+		gStatus.list[count].average = gStatus.list[count].total /
+					      gStatus.examNum;
 	}
 
 	print_msg("Well done");
@@ -114,13 +119,11 @@ static void print_table_part(int start)
 		printf("%s\t",gStatus.list[i].name);
 	putchar('\n');
 
-	int *data = gStatus.list[start].grade;
+	Student *list = gStatus.list;
 	for (int count = 0;count < gStatus.examNum;count++) {
 		printf("%d\t\t",count + 1);
-		int *grade = data + count;
 		for (int i = start;i < start + CONF_COL && i < gStatus.studentNum;i++) {
-			printf("%d\t",*grade);
-			grade += CONF_COL;
+			printf("%d\t",list[i].grade[count]);
 		}
 		putchar('\n');
 	}
@@ -148,12 +151,68 @@ void find_grade(void)
 	}
 
 	if (i == gStatus.studentNum) {
-		printf("Student with ID %s does not exist",id);
+		printf("Student with ID %s does not exist\n",id);
 	} else {
 		Student *s = gStatus.list + i;
+		printf("Student name: %s\n",s->name);
 		for (int i = 0;i < gStatus.examNum;i++)
 			printf("%d\n",s->grade[i]);
 	}
+	return;
+}
+
+typedef struct {
+	char *id;
+	int average;
+}ID_Grade_Pair;
+
+static int order_down(const void *p1,const void *p2)
+{
+	const ID_Grade_Pair *e1 = (ID_Grade_Pair*)p1;
+	const ID_Grade_Pair *e2 = (ID_Grade_Pair*)p2;
+
+	return e1->average > e2->average ? 1	:
+	       e1->average < e2->average ? -1	:
+	       				   0;
+}
+
+void print_average_grades(void)
+{
+	ID_Grade_Pair *list = malloc(sizeof(ID_Grade_Pair) *
+					    gStatus.studentNum);
+	assert(list);
+
+	for (int i = 0;i < gStatus.studentNum;i++) {
+		list[i].id	= gStatus.list[i].id;
+		list[i].average	= gStatus.list[i].average;
+	}
+
+	qsort(list,gStatus.studentNum,sizeof(ID_Grade_Pair),order_down);
+
+	puts("Order\tID\tAverage Grade");
+	for (int i = 0;i < gStatus.studentNum;i++)
+		printf("%d\t%s\t%d\n",i + 1,list[i].id,list[i].average);
+
+	free(list);
+
+	return;
+}
+
+void print_report(void)
+{
+	int exam = get_input("Enter the examination");
+
+	if (exam < 1 || exam > gStatus.examNum) {
+		puts("Invalid examination");
+		return;
+	}
+
+	puts("Name\tID\tGrade");
+	for (int i = 0;i < gStatus.studentNum;i++)
+		printf("%s\t%s\t%d\n",gStatus.list[i].name,
+				      gStatus.list[i].id,
+				      gStatus.list[i].grade[exam - 1]);
+
 	return;
 }
 
@@ -174,6 +233,8 @@ int main(void)
 		puts("1. Find the best and worst ones");
 		puts("2. Print Grade Table");
 		puts("3. Look for One's Grades");
+		puts("4. Print Average Grades");
+		puts("5. Print Report");
 		puts("6. Exit");
 		choice = get_input("Enter your choice");
 
@@ -183,6 +244,10 @@ int main(void)
 			print_table();
 		} else if (choice == 3) {
 			find_grade();
+		} else if (choice == 4) {
+			print_average_grades();
+		} else if (choice == 5) {
+			print_report();
 		}
 	}
 
