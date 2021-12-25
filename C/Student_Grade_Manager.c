@@ -171,8 +171,8 @@ static int order_down(const void *p1,const void *p2)
 	const ID_Grade_Pair *e1 = (ID_Grade_Pair*)p1;
 	const ID_Grade_Pair *e2 = (ID_Grade_Pair*)p2;
 
-	return e1->average > e2->average ? 1	:
-	       e1->average < e2->average ? -1	:
+	return e1->average < e2->average ? 1	:
+	       e1->average > e2->average ? -1	:
 	       				   0;
 }
 
