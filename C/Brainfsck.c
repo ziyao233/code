@@ -3,7 +3,7 @@
 	File:/C/Brainfsck.c
 	Date:2021.10.03
 	By MIT License.
-	Copyright (c) 2021 Suote127.All rights reserved.
+	Copyright (c) 2021 Ziyao.All rights reserved.
 */
 
 #include<assert.h>

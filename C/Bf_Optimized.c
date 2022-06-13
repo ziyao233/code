@@ -3,7 +3,7 @@
 	File:/C/Bf_Optimized.c
 	Date:2021.10.05
 	By MIT License.
-	Copyright (c) 2021 Suote127.All rights reserved.
+	Copyright (c) 2021 Ziyao.All rights reserved.
 */
 
 #include<assert.h>

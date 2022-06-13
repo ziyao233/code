@@ -3,7 +3,7 @@
  *	File:/C/ucontext.c
  *	Date:2021.07.03
  *	By MIT License.
- *	Copyright(C) 2021 Suote127.All rights reserved.
+ *	Copyright(C) 2021 Ziyao.All rights reserved.
 */
 
 #include<assert.h>
